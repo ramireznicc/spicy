@@ -30,31 +30,35 @@ export default function Card({ card, category }) {
   const [started, setStarted] = useState(false)
   const [remaining, setRemaining] = useState(total)
   const finished = total > 0 && started && remaining <= 0
-  const chimePlayed = useRef(false)
+  const prevRemaining = useRef(remaining)
 
   useEffect(() => { playPop() }, [])
 
   useEffect(() => {
     if (total <= 0 || !started) return
     setRemaining(total)
-    chimePlayed.current = false
     const id = setInterval(() => {
       setRemaining(prev => {
         if (prev <= 1) {
           clearInterval(id)
-          if (!chimePlayed.current) {
-            chimePlayed.current = true
-            playChime()
-          }
-          if (navigator.vibrate) navigator.vibrate([200, 100, 200])
           return 0
         }
-        if (prev <= 4 && prev > 1) playTick()
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(id)
   }, [total, started])
+
+  useEffect(() => {
+    if (!started || total <= 0) return
+    if (remaining === 0 && prevRemaining.current > 0) {
+      playChime()
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200])
+    } else if (remaining <= 3 && remaining > 0) {
+      playTick()
+    }
+    prevRemaining.current = remaining
+  }, [remaining, started, total])
 
   const radius = 36
   const stroke = 4

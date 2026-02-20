@@ -315,9 +315,15 @@ body::before {
 
 .level-bar {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.level-bar-row {
+  display: flex;
   gap: 6px;
   justify-content: center;
-  flex-wrap: wrap;
 }
 
 .dot {
