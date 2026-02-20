@@ -3,6 +3,7 @@ import IntroScreen from './components/IntroScreen'
 import GameScreen from './components/GameScreen'
 import EndScreen from './components/EndScreen'
 import { CARDS } from './data/cards'
+import { playLevelUp } from './sounds'
 
 function getLevel(round) {
   if (round <= 10) return 'tibio'
@@ -57,6 +58,7 @@ function pickCard(activeCats, level, usedCards) {
 }
 
 function App() {
+  const [ageVerified, setAgeVerified] = useState(false)
   const [screen, setScreen] = useState('intro')
   const [players, setPlayers] = useState(['', ''])
   const [currentTurn, setCurrentTurn] = useState(0)
@@ -70,6 +72,7 @@ function App() {
   const [currentCard, setCurrentCard] = useState(null)
   const [currentCategory, setCurrentCategory] = useState('')
   const [animKey, setAnimKey] = useState(0)
+  const [levelChanged, setLevelChanged] = useState(false)
 
   const dealCard = useCallback(
     (r, cats, used) => {
@@ -115,6 +118,12 @@ function App() {
         return
       }
 
+      if (getLevel(round) !== getLevel(nextRound)) {
+        playLevelUp()
+        setLevelChanged(true)
+        setTimeout(() => setLevelChanged(false), 1000)
+      }
+
       setRound(nextRound)
       setCurrentTurn((t) => (t === 0 ? 1 : 0))
       dealCard(nextRound, activeCats, usedCards)
@@ -146,6 +155,26 @@ function App() {
     setCurrentCard(null)
   }, [])
 
+  if (!ageVerified) {
+    return (
+      <div className="container">
+        <div className="age-gate">
+          <div className="age-gate-card">
+            <h1 className="age-gate-title">Contenido para adultos</h1>
+            <div className="age-gate-divider" />
+            <p className="age-gate-text">
+              Al continuar, confirmás que tenés 18 años o más
+              y aceptás acceder a contenido de carácter adulto.
+            </p>
+            <button className="age-gate-btn" onClick={() => setAgeVerified(true)}>
+              Soy mayor de 18 años
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container">
       {screen === 'intro' && <IntroScreen onStart={handleStart} />}
@@ -159,6 +188,7 @@ function App() {
           currentCategory={currentCategory}
           animKey={animKey}
           activeCats={activeCats}
+          levelChanged={levelChanged}
           onNext={handleNext}
           onSkip={handleSkip}
           onToggleCat={handleToggleCat}

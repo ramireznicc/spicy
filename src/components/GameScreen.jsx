@@ -11,6 +11,7 @@ export default function GameScreen({
   currentCategory,
   animKey,
   activeCats,
+  levelChanged,
   onNext,
   onSkip,
   onToggleCat,
@@ -31,7 +32,7 @@ export default function GameScreen({
         <div className="round-badge">Ronda {round}/30</div>
       </div>
 
-      <LevelBar round={round} level={level} />
+      <LevelBar round={round} level={level} levelChanged={levelChanged} />
 
       {cardWithName && (
         <Card key={animKey} card={cardWithName} category={currentCategory} />

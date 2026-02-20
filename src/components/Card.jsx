@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { playPop, playTick, playChime } from '../sounds'
 
 const CAT_LABELS = {
   verdad: 'Verdad',
@@ -26,25 +27,39 @@ function formatTime(s) {
 
 export default function Card({ card, category }) {
   const total = parseTimerSeconds(card.text)
+  const [started, setStarted] = useState(false)
   const [remaining, setRemaining] = useState(total)
-  const finished = total > 0 && remaining <= 0
+  const finished = total > 0 && started && remaining <= 0
+  const chimePlayed = useRef(false)
+
+  useEffect(() => { playPop() }, [])
 
   useEffect(() => {
-    if (total <= 0) return
+    if (total <= 0 || !started) return
     setRemaining(total)
+    chimePlayed.current = false
     const id = setInterval(() => {
       setRemaining(prev => {
-        if (prev <= 1) { clearInterval(id); return 0 }
+        if (prev <= 1) {
+          clearInterval(id)
+          if (!chimePlayed.current) {
+            chimePlayed.current = true
+            playChime()
+          }
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200])
+          return 0
+        }
+        if (prev <= 4 && prev > 1) playTick()
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(id)
-  }, [total])
+  }, [total, started])
 
   const radius = 36
   const stroke = 4
   const circumference = 2 * Math.PI * radius
-  const progress = total > 0 ? remaining / total : 0
+  const progress = total > 0 && started ? remaining / total : 1
   const offset = circumference * (1 - progress)
 
   return (
@@ -80,9 +95,15 @@ export default function Card({ card, category }) {
               transform={`rotate(-90 ${radius + stroke} ${radius + stroke})`}
             />
           </svg>
-          <span className={`timer-text${finished ? ' timer-text-done' : ''}`}>
-            {finished ? '✓' : formatTime(remaining)}
-          </span>
+          {!started && !finished ? (
+            <button className="timer-btn" onClick={() => setStarted(true)}>
+              Empezar
+            </button>
+          ) : (
+            <span className={`timer-text${finished ? ' timer-text-done' : ''}${!finished && started && remaining <= 3 ? ' timer-text-warning' : ''}`}>
+              {finished ? '✓' : formatTime(remaining)}
+            </span>
+          )}
         </div>
       )}
     </div>

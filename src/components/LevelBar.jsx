@@ -4,7 +4,7 @@ const LEVEL_NAMES = {
   picante: '🌶️ Picante',
 }
 
-export default function LevelBar({ round, level }) {
+export default function LevelBar({ round, level, levelChanged }) {
   return (
     <div className="level-section">
       <div className="level-bar">
@@ -15,7 +15,7 @@ export default function LevelBar({ round, level }) {
           return <div key={i} className={cls} />
         })}
       </div>
-      <div className="level-label">{LEVEL_NAMES[level]}</div>
+      <div className={`level-label${levelChanged ? ' level-label-up' : ''}`}>{LEVEL_NAMES[level]}</div>
     </div>
   )
 }
