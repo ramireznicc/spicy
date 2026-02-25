@@ -6,18 +6,20 @@ export default function GameScreen({
   players,
   currentTurn,
   round,
+  totalRounds,
   level,
   currentCard,
   currentCategory,
   animKey,
   activeCats,
   levelChanged,
+  gameMode,
   onNext,
   onSkip,
   onToggleCat,
 }) {
   const currentPlayer = players[currentTurn]
-  const otherPlayer = players[currentTurn === 0 ? 1 : 0]
+  const otherPlayer = players[(currentTurn + 1) % players.length]
 
   const cardWithName = currentCard
     ? { ...currentCard, text: currentCard.text.replace(/\{otro\/a\}/g, otherPlayer) }
@@ -29,10 +31,12 @@ export default function GameScreen({
         <div className="turn-indicator">
           Turno de <span className="turn-name">{currentPlayer}</span>
         </div>
-        <div className="round-badge">Ronda {round}/30</div>
+        <div className="round-badge">Ronda {round}/{totalRounds}</div>
       </div>
 
-      <LevelBar round={round} level={level} levelChanged={levelChanged} />
+      {gameMode !== 'custom' && (
+        <LevelBar round={round} level={level} levelChanged={levelChanged} />
+      )}
 
       {cardWithName && (
         <Card key={animKey} card={cardWithName} category={currentCategory} />
@@ -47,7 +51,9 @@ export default function GameScreen({
         </button>
       </div>
 
-      <CategoryChips activeCats={activeCats} onToggle={onToggleCat} />
+      {gameMode !== 'custom' && (
+        <CategoryChips activeCats={activeCats} onToggle={onToggleCat} />
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ const CAT_LABELS = {
   reto: 'Reto',
   pregunta: 'Pregunta',
   fantasia: 'Fantasía',
+  personalizado: 'Personal',
 }
 
 function parseTimerSeconds(text) {
